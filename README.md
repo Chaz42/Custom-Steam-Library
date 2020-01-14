@@ -1,7 +1,9 @@
 # Custom Steam Library
 
 A custom tool to edit certain features of the new Steam Library UI
+
 Note that Exiting steam and restarting will reset the Library UI back to default
+
 Future feature will auto detect Steam launching & update the UI
 
 ## Features
