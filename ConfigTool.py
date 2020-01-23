@@ -6,11 +6,26 @@ NORMAL_FONT = ("Helvetica", 12)
 
 # Settings definitions
 libraryroot_location = "/steamui/css/libraryroot.css"
-default_tilt = "    transform: rotateX(3deg) translateZ(15px);\n"
-disable_tilt = "    transform: translateZ(15px);\n"
-default_card_hover_colors = "    filter: brightness(1.1) contrast(0.95) saturate(1);\n"
-custom_card_hover_colors = "    filter: brightness(1.1) contrast(1) saturate(1);\n"
+#default_card_hover_colors = "    filter: brightness(1.1) contrast(0.95) saturate(1);\n"
+#custom_card_hover_colors = "    filter: brightness(1.1) contrast(1) saturate(1);\n"
 
+searchStrings = {
+    "  .appportrait_HoversEnabled_54PuC .appportrait_LibraryItemBox_WYgDg:hover:not(.appportrait_Landscape_3VOR2) {\n" : {
+        "configName" : "disableTilt",
+        "default" : "    transform: rotateX(3deg) translateZ(15px);\n",
+        "edited" : "    transform: translateZ(15px);\n"
+    },
+    ".appportrait_LibraryItemBoxShine_MyNb5 {\n" : {
+        "configName" : "disableShine",
+        "default" : "  opacity: 0.1;\n",
+        "edited" : "  opacity: 0.0;\n"
+    },
+    "  .appportrait_HoversEnabled_54PuC .appportrait_LibraryItemBox_WYgDg:hover .appportrait_LibraryItemBoxShine_MyNb5 {\n" : {
+        "configName" : "disableHoverShine",
+        "default" : "    opacity: 0.2;\n",
+        "edited" : "    opacity: 0.0;\n"
+    }
+}
 
 # Create folder in users app data to store config file
 appdataPath = os.getenv('APPDATA')
@@ -20,10 +35,12 @@ appdataPath += "\\Custom-Steam-Library\\"
 
 # Default config JSON
 configData = {
+    "configVersion" : 0.1,
     "steamDirectory": "",
     "disableTilt": False,
     "disableShine": False,
-    "roundCartCorners": False,
+    "disableHoverShine": False,
+    "roundCartCorners": False
 }
 
 # Check if config exists. If it doesn't, write configData to new file
@@ -66,21 +83,32 @@ class StartPage(tk.Frame):
         # Variables
         disableTilt = tk.BooleanVar()
         disableTilt.set(config["disableTilt"])
+        disableShine = tk.BooleanVar()
+        disableShine.set(config["disableShine"])
+        disableHoverShine = tk.BooleanVar()
+        disableHoverShine.set(config["disableHoverShine"])
 
         # Page Items
+        global lblStatus
+        lblStatus = ttk.Label(self, text="", font=NORMAL_FONT)
         btnSave = ttk.Button(self, text="Save", command=lambda: SavePressed())
         btnLog = ttk.Button(self, text="Logs", command=lambda: controller.show_frame(LogPage))
         btnSteam = ttk.Button(self, text="Set Steam Directory", command=lambda: AskForSteamDirectory(steamDirBox))
         steamDirBox = tk.Text(self, height=1)
-        chkDisableTilt = ttk.Checkbutton(self, text="Disable library cart tilt", variable=disableTilt, command=lambda: CheckboxPressed('disableTilt', disableTilt.get()))
+
+        chkDisableTilt = ttk.Checkbutton(self, text="Disable library cart tilt", variable=disableTilt, command=lambda: CheckboxPressed("disableTilt", disableTilt.get()))
+        chkDisableShine = ttk.Checkbutton(self, text="Disable library cart shine", variable=disableShine, command=lambda: CheckboxPressed("disableShine", disableShine.get()))
+        chkDisableHoverShine = ttk.Checkbutton(self, text="Disable library cart hover shine", variable=disableHoverShine, command=lambda: CheckboxPressed("disableHoverShine", disableHoverShine.get()))
 
         # Grid / Pack
         chkDisableTilt.pack(side=tk.TOP, expand=True, anchor=tk.CENTER)
+        chkDisableShine.pack(side=tk.TOP, expand=True, anchor=tk.CENTER)
+        chkDisableHoverShine.pack(side=tk.TOP, expand=True, anchor=tk.CENTER)
+        lblStatus.pack(side=tk.TOP, expand=True, anchor=tk.S)
         btnSave.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X)
         btnLog.pack(side=tk.BOTTOM, anchor=tk.S, fill=tk.X)
         btnSteam.pack(side=tk.LEFT, anchor=tk.NW)
         steamDirBox.pack(side=tk.LEFT, pady=1, anchor=tk.NW, expand=True, fill=tk.X)
-        
 
         # Config
         steamDirBox.insert(tk.END, config["steamDirectory"])
@@ -116,9 +144,10 @@ def SavePressed():
     if(config["steamDirectory"] != ""):
         with open(appdataPath + "config.json", "w") as outfile:
             json.dump(config, outfile, indent=4)
-        #TODO: Edit steam library file
+        EditLibrary()
+        UpdateStatus("Library changes saved!")
     else:
-        print("Steam Directory Not Set!")
+        UpdateStatus("Steam Directory Not Set!")
 
 def AskForSteamDirectory(steamDirBox):
     steamDirectory = tk.filedialog.askdirectory()
@@ -131,20 +160,27 @@ def AskForSteamDirectory(steamDirBox):
 def CheckboxPressed(text, value):
     config[text] = value
 
-#TODO: Completely redo this.
-# Use the data index to change the values (get index)
-# Use generic function to edit the lines
-# ADD A CHECK FOR IF THE CONFIG CONTAINS A PATH BEFORE SAVING
-def RemoveTilt(value):       
-    if (value == True):
-        with open(steamDirectory + libraryroot_location, 'r') as file:
-            data = file.readlines()
-        for line in data:
-            if (line == "  .appportrait_HoversEnabled_54PuC .appportrait_LibraryItemBox_WYgDg:hover:not(.appportrait_Landscape_3VOR2) {\n"):
-                index = data.index(line)
-                data[index + 1] = disable_tilt
-        with open(steamDirectory + libraryroot_location, 'w') as file:
-            file.writelines(data)
+def UpdateStatus(status):
+    lblStatus.configure(text=status)
+
+def EditLibrary():
+    with open(config["steamDirectory"] + libraryroot_location, 'r') as file:
+        data = file.readlines()
+    
+    for line in data:
+        if line in searchStrings:
+            index = data.index(line)
+            if (config[searchStrings[line]["configName"]] == True):
+                data[index + 1] = searchStrings[line]["edited"]
+            elif (config[searchStrings[line]["configName"]] == False):
+                data[index + 1] = searchStrings[line]["default"]
+            else:
+                #Log it
+                print("Error?")
+
+    with open(config["steamDirectory"] + libraryroot_location, 'w') as file:
+        file.writelines(data)
+
 
 app = ConfigureTool()
 #app.geometry("400x250")
