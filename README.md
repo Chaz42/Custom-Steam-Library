@@ -2,30 +2,31 @@
 
 A custom tool to edit certain features of the new Steam Library UI
 
-Note that Exiting steam and restarting will reset the Library UI back to default
-
-Future feature will auto detect Steam launching & update the UI
-
-## Features
+## Current Features
 - Remove cartridge tilt on hover
-- Custom cartridge tilt on hover
-- Custom cartridge zoom level on hover
 - Remove cartridge shine
-- Round cartridge corners
-- Custom cartridge hover contrast, brightness, & saturation
-- Custom date last played label colors
+- Remove cartridge shine on hover
 
 ## Todo
 - [ ] Detect steam launch or library file change & update the library UI
 - [x] Add config file to save/ load user settings
 - [ ] Add logging
+- [ ] Custom cartridge zoom level on hover
+- [ ] Custom cartridge tilt on hover
+- [ ] Round cartridge corners
+- [ ] Custom cartridge hover contrast, brightness, & saturation
+- [ ] Custom date last played label colors
 - [ ] Add example comparison pictures for each option (Could do this with pages containing pics for each)
 
-- Can non hovered cartridges be darkened?
-- Can 'Whats new' be removed?
-- Can Recent friend activity be rounded?
-- Can friends playing portraits be moved? (Or fix Z level) https://i.imgur.com/SSpxmxi.png
-- Can Info box on hover be resized, rounded, removed, or timing changed?
+Can non hovered cartridges be darkened?
+
+Can 'Whats new' be removed?
+
+Can Recent friend activity be rounded?
+
+Can friends playing portraits be moved? (Or fix Z level) https://i.imgur.com/SSpxmxi.png
+
+Can Info box on hover be resized, rounded, removed, or timing changed?
 
 
 ## Configuration
