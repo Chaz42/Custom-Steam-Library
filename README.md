@@ -17,10 +17,9 @@ Future feature will auto detect Steam launching & update the UI
 
 ## Todo
 - [ ] Detect steam launch or library file change & update the library UI
-- [ ] Add config file to save/ load user settings
+- [x] Add config file to save/ load user settings
 - [ ] Add logging
 - [ ] Add example comparison pictures for each option (Could do this with pages containing pics for each)
-- [ ] Utilize tkinter grid & not pack
 
 - Can non hovered cartridges be darkened?
 - Can 'Whats new' be removed?
